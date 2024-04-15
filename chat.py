@@ -12,7 +12,7 @@ locale = os.getenv('LOCALE')
 session_id = os.getenv('SESSION_ID')
 bot_id = os.getenv('BOT_ID')
 bot_alias_id = os.getenv('BOT_ALIAS_ID')
-client = boto3.client('lex-runtime', region_name=aws_region, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+client = boto3.client('lexv2-runtime', region_name=aws_region, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
 
 class BotClient:
     def __init__(self):

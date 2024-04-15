@@ -7,7 +7,7 @@ app = Flask(__name__)
 # debug mode
 app.config['DEBUG'] = True
 
-@app.route('/api', methods=['POST'])
+@app.route('/api', methods=['GET'])
 def api():
     data = request.get_json()
     # return jsonify(data)
@@ -24,4 +24,4 @@ def recognize_text():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=8000, debug=True)
