@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from chat import BotClient
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
@@ -23,4 +24,4 @@ def recognize_text():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

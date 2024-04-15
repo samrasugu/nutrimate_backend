@@ -1,15 +1,18 @@
 import boto3
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Load env variables
-aws_region = os.environ['AWS_REGION']
-aws_access_key_id = os.environ['AWS_ACCESS_KEY_ID']
-aws_secret_access_key = os.environ['AWS_SECRET_ACCESS_KEY']
-locale = os.environ['LOCALE']
-session_id = os.environ['SESSION_ID']
-bot_id = os.environ['BOT_ID']
-bot_alias_id = os.environ['BOT_ALIAS_ID']
-client = boto3.client('lex-runtime')
+aws_region = os.getenv('AWS_REGION')
+aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+locale = os.getenv('LOCALE')
+session_id = os.getenv('SESSION_ID')
+bot_id = os.getenv('BOT_ID')
+bot_alias_id = os.getenv('BOT_ALIAS_ID')
+client = boto3.client('lex-runtime', region_name=aws_region, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
 
 class BotClient:
     def __init__(self):
