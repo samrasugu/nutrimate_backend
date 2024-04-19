@@ -7,10 +7,8 @@ app = Flask(__name__)
 # debug mode
 app.config['DEBUG'] = True
 
-@app.route('/api', methods=['GET'])
+@app.route('/', methods=['GET'])
 def api():
-    data = request.get_json()
-    # return jsonify(data)
     return "Hello, World!"
 
 @app.route('/chat', methods=['POST'])
@@ -24,4 +22,4 @@ def recognize_text():
 
 
 if __name__ == '__main__':
-    app.run(port=8000, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=True)
