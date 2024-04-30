@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from chat import BotClient
+from recommend import Recommend
 from dotenv import load_dotenv
 
 app = Flask(__name__)
@@ -20,6 +21,14 @@ def recognize_text():
     
     return jsonify(response)
 
+@app.route('/recommend', methods=['POST'])
+def recommend():
+    
+    message = request.get_json()['message']
+    
+    response = Recommend().recommend(message=message)
+    
+    return jsonify(response)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000, debug=True)
