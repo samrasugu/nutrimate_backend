@@ -1,9 +1,16 @@
 from flask import Flask, request, jsonify
 from chat import BotClient
 from recommend import Recommend
-from dotenv import load_dotenv
+import os
+from flask_sqlalchemy import SQLAlchemy
+from auth import auth
+from database_config import db
 
 app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('POSTGRESDB_URL')
+
+db.init_app(app)
 
 # debug mode
 app.config['DEBUG'] = True
@@ -29,6 +36,18 @@ def recommend():
     response = Recommend().recommend(message=message)
     
     return jsonify(response)
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    
+    return auth.Auth.login(data)
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+
+    return auth.Auth.register(data)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000, debug=True)
