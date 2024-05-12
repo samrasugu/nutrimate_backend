@@ -9,7 +9,7 @@ from langchain_google_genai import (
     HarmCategory,
 )
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
-from langchain.chains import RetrievalQA
+from langchain.chains import ConversationChain
 from langchain_core.prompts import PromptTemplate
 
 from langchain.chains import create_retrieval_chain
@@ -42,12 +42,10 @@ class Recommend:
         self.vectorstore = vectorstore
         self.conversation_memory = ConversationBufferWindowMemory(
             k=5,
-            memory_key="chat_history",
+            memory_key="history",
         )
 
     def recommend(self, message):
-        # Update conversation memory
-        # self.conversation_memory.save_context(message)
 
         prompt_template = """
         Please respond to the question with as much detail as possible based on the provided context.
@@ -73,17 +71,26 @@ class Recommend:
             vectorstore.as_retriever(search_kwargs={"k": 5}), combine_docs_chain
         )
 
+        # now initialize the conversation chain
+        conversation = ConversationChain(llm=llm, memory=self.conversation_memory)
+
+        print(self.conversation_memory)
+
         # Include conversation history in the input
         input_with_history = {
             "input": message,
-            "conversation_history": self.conversation_memory.load_memory_variables({}),
+            "history": self.conversation_memory.chat_memory.messages,
         }
+
+        print(input_with_history)
 
         response = retrieval_chain.invoke(input_with_history)
 
         # Update conversation memory with the assistant's response
-        self.conversation_memory.save_context(
-            {"input": message}, {"output": response["answer"]}
+        self.conversation_memory.chat_memory.add_messages(
+            messages=[{"input": message}, {"output": response["answer"]}]
         )
+
+        print(self.conversation_memory)
 
         return response["answer"]
