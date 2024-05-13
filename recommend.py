@@ -68,7 +68,9 @@ class Recommend:
         )
 
         history_aware_retriever = create_history_aware_retriever(
-            llm, vectorstore.as_retriever(), contextualize_q_prompt
+            llm,
+            vectorstore.as_retriever(search_kwargs={"k": 5}),
+            contextualize_q_prompt,
         )
 
         ### Answer question ###
@@ -99,7 +101,7 @@ class Recommend:
             if session_id not in store:
                 store[session_id] = ChatMessageHistory()
             return store[session_id]
-        
+
         print(store)
 
         conversational_rag_chain = RunnableWithMessageHistory(
@@ -116,7 +118,7 @@ class Recommend:
                 "configurable": {"session_id": "abc123"}
             },  # constructs a key "abc123" in `store`.
         )
-        
+
         print(response)
 
         return response["answer"]
