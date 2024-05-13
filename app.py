@@ -49,5 +49,11 @@ def register():
 
     return auth.Auth.register(data)
 
+@app.route('/create_profile', methods=['POST'])
+def create_profile():
+    data = request.get_json()
+
+    return auth.Auth.create_profile(data)
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000, debug=True)
