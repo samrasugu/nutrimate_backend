@@ -31,7 +31,20 @@ class Auth:
         db.session.add(new_user)
         db.session.commit()
 
-        return jsonify({"message": "User created successfully"}), 201
+        return (
+            jsonify(
+                {
+                    "message": "User created successfully",
+                    "user": {
+                        "id": str(new_user.id),
+                        "firstname": new_user.firstname,
+                        "lastname": new_user.lastname,
+                        "email": new_user.email,
+                    },
+                }
+            ),
+            201,
+        )
 
     def create_profile(data):
         user_id = data.get("user_id")
