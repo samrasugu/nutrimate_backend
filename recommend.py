@@ -3,11 +3,16 @@ from langchain_community.embeddings import SentenceTransformerEmbeddings
 from pinecone import Pinecone
 from langchain_pinecone import PineconeVectorStore
 from langchain.chains.question_answering import load_qa_chain
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_google_genai import (
+    GoogleGenerativeAI,
+    HarmBlockThreshold,
+    HarmCategory,
+)
+from langchain_community.chat_message_histories import (
+    RedisChatMessageHistory,
+)
 from langchain.chains import create_history_aware_retriever
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from langchain.chains import create_retrieval_chain
@@ -17,6 +22,8 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 pinecone_api_key = os.getenv("PINECONE_API_KEY")
 index_name = os.getenv("INDEX_NAME")
 openai_api_key = os.getenv("OPENAI_API_KEY")
+REDIS_URL = os.getenv("REDIS_URL")
+google_api_key = os.getenv("GOOGLE_API_KEY")
 
 # init embeddings
 embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
@@ -40,18 +47,10 @@ class Recommend:
         self.vectorstore = vectorstore
 
     def recommend(self, message):
-        prompt_template = """
-        Please respond to the question with as much detail as possible based on the provided context.
-        Make sure to include all relevant details. If the answer is not available in the provided context,
-        please respond with 'The answer is not available in the context.' Avoid providing incorrect answers
-        \n\n
-        context:\n {context}?\n
-        input: \n{input}\n
-        answer:
-        """
 
-        llm = ChatGoogleGenerativeAI(
-            model="gemini-pro", convert_system_message_to_human=True, temperature=0.3
+        llm = GoogleGenerativeAI(
+            model="gemini-pro",
+            google_api_key=google_api_key,
         )
 
         ### Contextualize question ###
@@ -59,6 +58,7 @@ class Recommend:
         which might reference context in the chat history, formulate a standalone question \
         which can be understood without the chat history. Do NOT answer the question, \
         just reformulate it if needed and otherwise return it as is."""
+
         contextualize_q_prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", contextualize_q_system_prompt),
@@ -67,6 +67,8 @@ class Recommend:
             ]
         )
 
+        print(contextualize_q_prompt)
+
         history_aware_retriever = create_history_aware_retriever(
             llm,
             vectorstore.as_retriever(search_kwargs={"k": 5}),
@@ -74,9 +76,10 @@ class Recommend:
         )
 
         ### Answer question ###
-        qa_system_prompt = """Please respond to the question with as much detail as possible based on the provided context.
-        Make sure to include all relevant details. If the answer is not available in the provided context,
-        please respond with 'The answer is not available in the context.' Avoid providing incorrect answers
+        qa_system_prompt = """You are an assistant for question-answering tasks. \
+        Use the following pieces of retrieved context to answer the question. \
+        If you don't know the answer, just say that you don't know. \
+        Use three sentences maximum and keep the answer concise.\
 
         {context}"""
 
@@ -88,21 +91,17 @@ class Recommend:
             ]
         )
 
+        print(qa_prompt)
+
         question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
 
         rag_chain = create_retrieval_chain(
             history_aware_retriever, question_answer_chain
         )
 
-        ### Statefully manage chat history ###
-        store = {}
-
-        def get_session_history(session_id: str) -> BaseChatMessageHistory:
-            if session_id not in store:
-                store[session_id] = ChatMessageHistory()
-            return store[session_id]
-
-        print(store)
+        ### chat history ###
+        def get_session_history(session_id: str) -> RedisChatMessageHistory:
+            return RedisChatMessageHistory(session_id, url=REDIS_URL)
 
         conversational_rag_chain = RunnableWithMessageHistory(
             rag_chain,
@@ -116,7 +115,7 @@ class Recommend:
             {"input": message},
             config={
                 "configurable": {"session_id": "abc123"}
-            },  # constructs a key "abc123" in `store`.
+            },  # constructs a key "abc123" in `store`. TODO: make session_id dynamic based on user
         )
 
         print(response)
