@@ -10,6 +10,9 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('POSTGRESDB_URL')
 
+# secret key for session management using flask
+app.secret_key = os.getenv('SECRET_KEY')
+
 db.init_app(app)
 
 # debug mode
