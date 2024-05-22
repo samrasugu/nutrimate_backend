@@ -12,8 +12,20 @@ class Auth:
         user = User.query.filter_by(email=data["email"]).first()
 
         if user and verify_password(data["password"], user.password):
-            # login_user(user)
-            return jsonify({"message": "Logged in successfully"}), 200
+            return (
+                jsonify(
+                    {
+                        "message": "Logged in successfully",
+                        "user": {
+                            "id": str(user.id),
+                            "firstname": user.firstname,
+                            "lastname": user.lastname,
+                            "email": user.email,
+                        },
+                    }
+                ),
+                200,
+            )
 
         return jsonify({"message": "Invalid credentials"}), 400
 
