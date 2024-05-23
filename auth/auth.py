@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_bcrypt import Bcrypt
 from models.user import User
-from app import app, db
+from app import db
 from models.user_profile import UserProfile
 from utils.utils import hash_password, verify_password
 
