@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from auth import auth
 from database_config import db
 from diseases import diseases
+from locations import locations
 
 app = Flask(__name__)
 
@@ -65,17 +66,33 @@ def create_profile():
 
     return auth.Auth.create_profile(data)
 
+
 @app.route("/add_disease", methods=["POST"])
 def add_disease():
     data = request.get_json()
 
     return diseases.Diseases.add_disease(data)
 
+
 @app.route("/get_disease", methods=["POST"])
 def get_disease():
     data = request.get_json()
 
     return diseases.Diseases.get_disease(data)
+
+
+@app.route("/add_location", methods=["POST"])
+def add_location():
+    data = request.get_json()
+
+    return locations.Locations.add_location(data)
+
+
+@app.route("/get_location", methods=["POST"])
+def get_location():
+    data = request.get_json()
+
+    return locations.Locations.get_location(data)
 
 
 if __name__ == "__main__":
