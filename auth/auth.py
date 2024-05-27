@@ -60,7 +60,7 @@ class Auth:
 
     def create_profile(data):
         user_id = data.get("user_id")
-        user = User.query.get(user_id)
+        user = User.query.filter_by(id=user_id).first()
 
         if not user:
             return jsonify({"error": "User not found"}), 404
@@ -97,13 +97,13 @@ class Auth:
 
 def profile_to_dict(profile):
     return {
-        "id": profile.id,
-        "age": profile.age,
+        "id": str(profile.id),
+        "age": str(profile.age),
         "gender": profile.gender,
         "illnesses": profile.illnesses,
-        "weight": float(profile.weight),
-        "height": float(profile.height),
+        "weight": str(profile.weight),
+        "height": str(profile.height),
         "location": profile.location,
         "food_preferences": profile.food_preferences,
-        "user_id": profile.user_id,
+        "user_id": str(profile.user_id),
     }
