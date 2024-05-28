@@ -39,9 +39,9 @@ def recognize_text():
 @app.route("/recommend", methods=["POST"])
 def recommend():
 
-    message = request.get_json()["message"]
+    data = request.get_json()
 
-    response = Recommend().recommend(message=message)
+    response = Recommend().recommend(data)
 
     return jsonify(response)
 

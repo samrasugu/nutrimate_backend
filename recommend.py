@@ -46,7 +46,7 @@ class Recommend:
         self.openai_api_key = openai_api_key
         self.vectorstore = vectorstore
 
-    def recommend(self, message):
+    def recommend(self, data):
 
         llm = GoogleGenerativeAI(
             model="gemini-pro",
@@ -110,12 +110,12 @@ class Recommend:
             history_messages_key="chat_history",
             output_messages_key="answer",
         )
-
+        
         response = conversational_rag_chain.invoke(
-            {"input": message},
+            {"input": data["message"]},
             config={
-                "configurable": {"session_id": "abc123"}
-            },  # constructs a key "abc123" in `store`. TODO: make session_id dynamic based on user
+                "configurable": {"session_id": data["session_id"]}
+            },
         )
 
         print(response)
