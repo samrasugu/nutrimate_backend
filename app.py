@@ -67,6 +67,13 @@ def create_profile():
     return auth.Auth.create_profile(data)
 
 
+@app.route("/get_profile", methods=["POST"])
+def get_profile():
+    data = request.get_json()
+
+    return auth.Auth.get_user_profile(data)
+
+
 @app.route("/add_disease", methods=["POST"])
 def add_disease():
     data = request.get_json()

@@ -76,10 +76,13 @@ class Recommend:
         )
 
         ### Answer question ###
-        qa_system_prompt = """You are an assistant for question-answering tasks. \
+        qa_system_prompt = """You are a nutritional assistant. \
         Use the following pieces of retrieved context to answer the question. \
+        From the context, formulate an answer that best fits the user_profile provided. \
+        If a user asks for let's say vegeterian food only, remove non-vegeterian foods before returning the final answer. \
+        Respond as if you are a nutritional assistant talking to a person directly in a one-one conversation. \
         If you don't know the answer, just say that you don't know. \
-        Use three sentences maximum and keep the answer concise.\
+        Keep the answer concise and clear.\
 
         {context}"""
 
@@ -110,11 +113,15 @@ class Recommend:
             history_messages_key="chat_history",
             output_messages_key="answer",
         )
-        
+
         response = conversational_rag_chain.invoke(
-            {"input": data["message"]},
+            {
+                "input": data["message"],
+            },
             config={
-                "configurable": {"session_id": data["session_id"]}
+                "configurable": {
+                    "session_id": data["session_id"],
+                }
             },
         )
 
