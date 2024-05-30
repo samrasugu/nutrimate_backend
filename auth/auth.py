@@ -12,6 +12,11 @@ class Auth:
         user = User.query.filter_by(email=data["email"]).first()
 
         if user and verify_password(data["password"], user.password):
+            # fetch user profile
+            profile = UserProfile.query.filter_by(user_id=user.id).first()
+            if not profile:
+                return jsonify({"error": "Profile not found"}), 404
+
             return (
                 jsonify(
                     {
@@ -22,10 +27,26 @@ class Auth:
                             "lastname": user.lastname,
                             "email": user.email,
                         },
+                        "profile": profile_to_dict(profile),
                     }
                 ),
                 200,
             )
+
+            # return (
+            #     jsonify(
+            #         {
+            #             "message": "Logged in successfully",
+            #             "user": {
+            #                 "id": str(user.id),
+            #                 "firstname": user.firstname,
+            #                 "lastname": user.lastname,
+            #                 "email": user.email,
+            #             },
+            #         }
+            #     ),
+            #     200,
+            # )
 
         return jsonify({"message": "Invalid credentials"}), 400
 
@@ -93,6 +114,13 @@ class Auth:
             ),
             201,
         )
+
+    def get_user_profile(data):
+        profile = UserProfile.query.filter_by(user_id=data["user_id"]).first()
+        if not profile:
+            return jsonify({"error": "Profile not found"}), 404
+
+        return jsonify({"profile": profile_to_dict(profile)})
 
 
 def profile_to_dict(profile):
