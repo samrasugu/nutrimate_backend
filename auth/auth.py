@@ -33,21 +33,6 @@ class Auth:
                 200,
             )
 
-            # return (
-            #     jsonify(
-            #         {
-            #             "message": "Logged in successfully",
-            #             "user": {
-            #                 "id": str(user.id),
-            #                 "firstname": user.firstname,
-            #                 "lastname": user.lastname,
-            #                 "email": user.email,
-            #             },
-            #         }
-            #     ),
-            #     200,
-            # )
-
         return jsonify({"message": "Invalid credentials"}), 400
 
     def register(data):

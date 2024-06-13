@@ -30,22 +30,28 @@ class Diseases:
         )
 
     def get_disease(data):
+        search_term = f"%{data['disease']}%"
 
-        disease = Disease.query.filter_by(disease_name=data["disease"]).first()
+        diseases = Disease.query.filter(Disease.disease_name.ilike(search_term)).all()
 
-        if disease:
+        if diseases:
+            diseases_list = [
+                {
+                    "disease_id": str(disease.disease_id),
+                    "disease_name": disease.disease_name,
+                    "description": disease.description,
+                }
+                for disease in diseases
+            ]
+
             return (
                 jsonify(
                     {
                         "message": "Disease found",
-                        "disease": {
-                            "disease_id": str(disease.disease_id),
-                            "disease_name": disease.disease_name,
-                            "description": disease.description,
-                        },
+                        "diseases": diseases_list,
                     }
                 ),
                 200,
             )
 
-        return jsonify({"message": "Disease not found"}), 400
+        return jsonify({"message": "Disease not found"}), 404

@@ -1,6 +1,7 @@
 from flask import jsonify
 from app import db
 from models.location import Location
+from sqlalchemy import or_
 
 
 class Locations:
@@ -29,18 +30,25 @@ class Locations:
 
     def get_location(data):
 
-        location = Location.query.filter_by(name=data["name"]).first()
+        search_term = f"%{data['name']}%"
 
-        if location:
+        locations = Location.query.filter(Location.name.ilike(search_term)).all()
+
+        if locations:
+            location_list = [
+                {
+                    "id": str(location.id),
+                    "name": location.name,
+                    "description": location.description,
+                }
+                for location in locations
+            ]
+
             return (
                 jsonify(
                     {
                         "message": "Location found",
-                        "location": {
-                            "id": str(location.id),
-                            "name": location.name,
-                            "description": location.description,
-                        },
+                        "locations": location_list,
                     }
                 ),
                 200,

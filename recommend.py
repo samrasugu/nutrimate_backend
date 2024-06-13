@@ -71,7 +71,7 @@ class Recommend:
 
         history_aware_retriever = create_history_aware_retriever(
             llm,
-            vectorstore.as_retriever(search_kwargs={"k": 5}),
+            vectorstore.as_retriever(search_kwargs={"k": 20}),
             contextualize_q_prompt,
         )
 
