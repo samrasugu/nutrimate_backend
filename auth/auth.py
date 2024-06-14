@@ -36,6 +36,11 @@ class Auth:
         return jsonify({"message": "Invalid credentials"}), 400
 
     def register(data):
+        
+        user = User.query.filter_by(email=data["email"]).first()
+        
+        if user:
+            return jsonify({"error": "User with that email already exists"}), 400
 
         hashed_password = hash_password(data["password"])
 
