@@ -1,6 +1,6 @@
 from flask import jsonify
 from models.disease import Disease
-from app import db
+from database_config import db
 
 
 class Diseases:
