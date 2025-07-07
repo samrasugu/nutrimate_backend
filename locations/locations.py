@@ -1,5 +1,5 @@
 from flask import jsonify
-from app import db
+from database_config import db
 from models.location import Location
 from sqlalchemy import or_
 

@@ -37,100 +37,107 @@ An intelligent nutrition chat system that leverages Retrieval Augmented Generati
 - Google AI API key
 - AWS account (for Lex integration)
 
-## 🔧 Installation
+## 🔧 Quick Start
 
-1. **Clone the repository**
+### Automated Setup (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/samrasugu/nutrimate_backend.git
+cd nutrimate_backend
+
+# Run the automated setup script
+./setup.sh
+
+# Start the application
+./run.sh
+```
+
+### Manual Setup
+
+For detailed setup instructions, see [SETUP.md](SETUP.md).
+
+**Quick manual setup:**
+
+1. **Clone and setup virtual environment**
    ```bash
    git clone https://github.com/samrasugu/nutrimate_backend.git
    cd nutrimate_backend
-   ```
-
-2. **Create a virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
    pip install -r requirements.txt
    ```
 
-4. **Set up environment variables**
-   Create a `.env` file in the root directory:
-   ```env
-   # Database
-   POSTGRESDB_URL=postgresql://username:password@localhost:5432/nutrimate
-   SECRET_KEY=your-secret-key-here
-   
-   # AI Services
-   OPENAI_API_KEY=your-openai-api-key
-   GOOGLE_API_KEY=your-google-ai-api-key
-   
-   # Pinecone
-   PINECONE_API_KEY=your-pinecone-api-key
-   INDEX_NAME=your-pinecone-index-name
-   
-   # Redis
-   REDIS_URL=redis://localhost:6379
-   
-   # AWS Lex
-   AWS_REGION=your-aws-region
-   AWS_ACCESS_KEY_ID=your-aws-access-key
-   AWS_SECRET_ACCESS_KEY=your-aws-secret-key
-   LOCALE=en_US
-   SESSION_ID=your-session-id
-   BOT_ID=your-bot-id
-   BOT_ALIAS_ID=your-bot-alias-id
+2. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your actual credentials
    ```
 
-5. **Initialize the database**
+3. **Setup services and database**
    ```bash
-   python -c "from app import app, db; app.app_context().push(); db.create_all()"
+   # Start PostgreSQL and Redis
+   brew services start postgresql
+   brew services start redis
+   
+   # Create database
+   createdb nutrimate
+   
+   # Initialize database tables
+   python3 -c "from app import app, db; app.app_context().push(); db.create_all()"
    ```
 
 ## 🚀 Usage
 
-1. **Start the development server**
-   ```bash
-   python app.py
-   ```
-   The API will be available at `http://localhost:5000`
+### Starting the Application
 
-2. **API Endpoints**
+**Using the run script (recommended):**
+```bash
+./run.sh
+```
 
-   ### Chat
-   ```bash
-   POST /chat
-   Content-Type: application/json
-   
-   {
-     "message": "What foods are good for diabetes?"
-   }
-   ```
+**Manual start:**
+```bash
+source venv/bin/activate
+python3 app.py
+```
 
-   ### Recommendations
-   ```bash
-   POST /recommend
-   Content-Type: application/json
-   
-   {
-     "user_id": 123,
-     "health_conditions": ["diabetes"],
-     "dietary_preferences": ["vegetarian"]
-   }
-   ```
+The API will be available at `http://localhost:5000`
 
-   ### Authentication
-   ```bash
-   POST /login
-   Content-Type: application/json
-   
-   {
-     "email": "user@example.com",
-     "password": "password123"
-   }
-   ```
+### API Endpoints
+
+#### Chat
+```bash
+POST /chat
+Content-Type: application/json
+
+{
+  "message": "What foods are good for diabetes?"
+}
+```
+
+#### Recommendations
+```bash
+POST /recommend
+Content-Type: application/json
+
+{
+  "user_id": 123,
+  "health_conditions": ["diabetes"],
+  "dietary_preferences": ["vegetarian"]
+}
+```
+
+#### Authentication
+```bash
+POST /login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
 
 ## 📁 Project Structure
 
@@ -187,13 +194,6 @@ NutriMate implements a sophisticated RAG (Retrieval Augmented Generation) system
 - Session management with Flask
 - Environment variable configuration
 - SQL injection protection with SQLAlchemy
-
-## 🧪 Testing
-
-Run tests with:
-```bash
-python -m pytest tests/
-```
 
 ## 📊 Performance Considerations
 

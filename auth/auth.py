@@ -1,12 +1,22 @@
 from flask import request, jsonify
 from flask_bcrypt import Bcrypt
 from models.user import User
-from app import db
+from database_config import db
 from models.user_profile import UserProfile
 from utils.utils import hash_password, verify_password
 
 
 class Auth:
+    @staticmethod
+    def ensure_tables_exist():
+        """Ensure all database tables exist"""
+        try:
+            db.create_all()
+            return True
+        except Exception as e:
+            print(f"Error creating tables: {e}")
+            return False
+
     def login(data):
 
         user = User.query.filter_by(email=data["email"]).first()

@@ -25,26 +25,52 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 REDIS_URL = os.getenv("REDIS_URL")
 google_api_key = os.getenv("GOOGLE_API_KEY")
 
-# init embeddings
+# Initialize embeddings
 embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
-# initialize pinecone
-pc = Pinecone(api_key=pinecone_api_key)
-
-index = pc.Index(index_name)
-
+# Pinecone initialization will be done lazily in the class
 text_field = "text"
-
-vectorstore = PineconeVectorStore(index, embeddings, text_field)
 
 
 class Recommend:
     def __init__(self):
         self.embeddings = embeddings
-        self.pc = pc
+        self.pinecone_api_key = pinecone_api_key
         self.index_name = index_name
         self.openai_api_key = openai_api_key
-        self.vectorstore = vectorstore
+        self.REDIS_URL = REDIS_URL
+        self.google_api_key = google_api_key
+        self.text_field = text_field
+        
+        # Initialize Pinecone components lazily
+        self._pc = None
+        self._index = None
+        self._vectorstore = None
+    
+    @property
+    def pc(self):
+        """Lazy initialization of Pinecone client"""
+        if self._pc is None:
+            if not self.pinecone_api_key:
+                raise ValueError("Valid PINECONE_API_KEY environment variable is required")
+            self._pc = Pinecone(api_key=self.pinecone_api_key)
+        return self._pc
+    
+    @property
+    def index(self):
+        """Lazy initialization of Pinecone index"""
+        if self._index is None:
+            if not self.index_name:
+                raise ValueError("Valid INDEX_NAME environment variable is required")
+            self._index = self.pc.Index(self.index_name)
+        return self._index
+    
+    @property
+    def vectorstore(self):
+        """Lazy initialization of vector store"""
+        if self._vectorstore is None:
+            self._vectorstore = PineconeVectorStore(self.index, self.embeddings, self.text_field)
+        return self._vectorstore
 
     def recommend(self, data):
 
@@ -71,7 +97,7 @@ class Recommend:
 
         history_aware_retriever = create_history_aware_retriever(
             llm,
-            vectorstore.as_retriever(search_kwargs={"k": 20}),
+            self.vectorstore.as_retriever(search_kwargs={"k": 20}),
             contextualize_q_prompt,
         )
 
